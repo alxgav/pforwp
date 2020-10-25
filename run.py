@@ -1,7 +1,7 @@
 import pprint
 import requests
 import os
-from requests_html import HTMLSession
+# from requests_html import HTMLSession
 
 
 from modules import  parcers, models
@@ -19,26 +19,26 @@ if not os.path.exists(path_image):
 def insertToBase(data, post_author,x_coord, y_coord, location, phone, nikname, city):
     # pprint.pprint (data)
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36'}
-    post_id = models.insert_wp_posts_stmt(data, post_author)
-    models.insert_wp_term_relationships(post_id, city)
+    make_post = models.insert_wp_posts_stmt(data, post_author)
+    models.insert_wp_term_relationships(make_post[0], city)
 
-    print(post_id, 'post_id')
+    print(make_post[0], 'post_id')
     post_id_images = ''
     for i in data['images']:
         responce = requests.get(i, headers=headers)
         if responce.status_code == 200:
             imageName = i.split('/')[-1]
-            print(imageName, post_id)
-            imgName = models.translateD("".join(data["title"].lower().split()))
-            f = open(f'{path_image}{imgName}{imageName}', 'wb')
+            print(imageName, make_post[0])
+            # imgName = models.translateD("".join(data["title"].lower().split()))
+            f = open(f'{path_image}{make_post[1]}{imageName}', 'wb')
             f.write(responce.content)
             f.close()
             post_id_images = models.insert_wp_posts_image(
-                imgName+imageName, f'https://www.6perlen.de/wp-content/uploads/clubs/imgs/{imgName}{imageName}', post_author, post_id)
+                make_post[1]+imageName, f'https://www.6perlen.de/wp-content/uploads/clubs/imgs/{make_post[1]}{imageName}', post_author, make_post[0])
             print(post_id_images, 'post_id_images')
-            models.insert_wp_postmeta_images(post_id_images, imgName+imageName)
+            models.insert_wp_postmeta_images(post_id_images, make_post[1]+imageName)
             print(post_id_images)
-            models.insert_wp_postmeta(post_id, post_id_images, x_coord, y_coord, location, phone, nikname)
+            models.insert_wp_postmeta(make_post[0], post_id_images, x_coord, y_coord, location, phone, nikname)
 
 
 

@@ -59,6 +59,12 @@ def insert_wp_posts_stmt(data, post_author, post_parent=0):
 
     post_name = f'{post_author}-{translateD("".join(data["title"].lower().split()))}'
 
+    mycursor.execute(f'''SELECT post_title FROM wp_posts where post_title ='{data['title']}' and post_author = {post_author}''')
+
+    if mycursor.fetchone():
+        post_name =  f'{post_name}_'
+        print (post_name, 'postname')
+
     wp_post_value = (post_author,
                      datetime.today(),
                      datetime.today(),
@@ -77,7 +83,7 @@ def insert_wp_posts_stmt(data, post_author, post_parent=0):
                      0, '', '', '', '', '')
     mycursor.execute(wp_post_insert, wp_post_value)
     mydb.commit()
-    return mycursor.lastrowid
+    return mycursor.lastrowid, post_name
 
 
 def insert_wp_postmeta(id,  id_image, x_coord, y_coord, location, phone, nikname):
